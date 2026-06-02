@@ -1,23 +1,18 @@
-import { Page } from '@playwright/test';
+import { APIRequestContext } from '@playwright/test';
 
-class APIHelper {
-
-    constructor() { }
-
-    async returnToken(page: Page) {
-        const response = await page.request.post('https://api.realworld.io/api/users/login', {
+export async function getAuthToken(apiContext: APIRequestContext, email: string, password: string): Promise<string> {
+        const response = await apiContext.post('https://api.realworld.io/api/users/login', {
             data: {
                 user: {
-                    email: 'test@example.com',
-                    password: 'password'
+                    email: email,
+                    password: password
                 }
             }
         });
-
-        const token = await response.json();
-
-        return token;
-    }
+        
+        if (!response.ok()) {
+            throw new Error(`Failed to log in: ${response.status()} ${response.statusText()}`);
+        }
+        const responseBody = await response.json();
+        return responseBody.user.token;
 }
-
-export default APIHelper;
