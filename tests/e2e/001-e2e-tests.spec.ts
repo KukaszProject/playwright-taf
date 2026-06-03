@@ -26,10 +26,12 @@ test('User can log in and receive a token', async ({ request, page }) => {
     const responseBody = await response.json();
     const articleTitle = responseBody.article.title;
 
-    await page.goto(`https://demo.realworld.io/article/`);
-    await expect(page.locator('h1')).toHaveText(articleTitle);
+    await page.goto(`/`);
+    const articleLink = page.getByRole('link', { name: articleTitle });
+    await expect(articleLink).toBeVisible();
+    await articleLink.click();
     
-    await page.getByText(articleTitle).click();
+    await expect(page.locator('h1')).toHaveText(articleTitle);
     
     const axe = new AxeBuilder({ page });
     const accessibilityScanResults = await axe.analyze();
